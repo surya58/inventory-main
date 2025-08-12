@@ -1,71 +1,111 @@
-'use client'
+import { AppSidebar } from "@/components/app-sidebar"
+import { DashboardStats } from "@/components/dashboard/dashboard-stats"
+import { ProductsTable } from "@/components/dashboard/products-table"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
-import { useState } from "react";
-import { useGetTodosQuery, useCreateTodoMutation, useUpdateTodoMutation, useDeleteTodoMutation } from "@/store/api/enhanced/todos";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+// Mock data - replace with actual data fetching
+const mockStats = {
+  totalProducts: 6,
+  totalStock: 411,
+  lowStockItems: 1,
+  totalValue: 20285.89
+}
 
-export default function TodosPage() {
-    const { data: todos, isLoading, isError } = useGetTodosQuery();
-    const [createTodo] = useCreateTodoMutation();
-    const [updateTodo] = useUpdateTodoMutation();
-    const [deleteTodo] = useDeleteTodoMutation();
-    const [newTodoTitle, setNewTodoTitle] = useState("");
+const mockProducts = [
+  {
+    id: "1",
+    name: "Wireless Bluetooth Headphones",
+    description: "Premium wireless headphones with noise cancellation",
+    sku: "WBH-001",
+    category: "Electronics",
+    stock: 45,
+    price: 89.99,
+    status: "In Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  },
+  {
+    id: "2",
+    name: "Organic Cotton T-Shirt",
+    description: "Soft organic cotton t-shirt in multiple colors",
+    sku: "OCT-002",
+    category: "Clothing",
+    stock: 120,
+    price: 24.99,
+    status: "In Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  },
+  {
+    id: "3",
+    name: "Smart Water Bottle",
+    description: "Temperature tracking smart water bottle with app connectivity",
+    sku: "SWB-003",
+    category: "Health & Fitness",
+    stock: 78,
+    price: 34.99,
+    status: "In Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  },
+  {
+    id: "4",
+    name: "Ergonomic Office Chair",
+    description: "Adjustable ergonomic chair with lumbar support",
+    sku: "EOC-004",
+    category: "Furniture",
+    stock: 12,
+    price: 299.99,
+    status: "Low Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  },
+  {
+    id: "5",
+    name: "LED Desk Lamp",
+    description: "Adjustable LED desk lamp with USB charging port",
+    sku: "LDL-005",
+    category: "Home & Garden",
+    stock: 67,
+    price: 49.99,
+    status: "In Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  },
+  {
+    id: "6",
+    name: "Yoga Mat Premium",
+    description: "Non-slip premium yoga mat with carrying strap",
+    sku: "YMP-006",
+    category: "Health & Fitness",
+    stock: 89,
+    price: 39.99,
+    status: "In Stock" as const,
+    createdAt: "2024-01-15T04:30:00Z",
+    updatedAt: "2024-01-15T04:30:00Z"
+  }
+]
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (isError || !todos) {
-        return <div>Error loading todos.</div>;
-    }
-
-    const handleCreateTodo = () => {
-        if (newTodoTitle.trim()) {
-            createTodo({ createTodoCommand: { title: newTodoTitle } });
-            setNewTodoTitle("");
-        }
-    };
-
-    return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Todos</h1>
-            <div className="flex w-full max-w-sm items-center space-x-2 mb-4">
-                <Input
-                    type="text"
-                    placeholder="Add a new todo"
-                    value={newTodoTitle}
-                    onChange={(e) => setNewTodoTitle(e.target.value)}
-                />
-                <Button onClick={handleCreateTodo}>Add Todo</Button>
+export default function Dashboard() {
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <main className="flex-1 space-y-4 p-8 pt-6">
+          <div className="space-y-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+              <p className="text-gray-600">Overview of your product inventory</p>
             </div>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px]">Complete</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {todos.map((todo) => (
-                        <TableRow key={todo.id}>
-                            <TableCell>
-                                <Checkbox
-                                    checked={todo.isComplete!}
-                                    onCheckedChange={() => updateTodo({ id: todo.id!, updateTodoCommand: { id: todo.id!, title: todo.title ?? "", isComplete: !todo.isComplete } })}
-                                />
-                            </TableCell>
-                            <TableCell>{todo.title}</TableCell>
-                            <TableCell>
-                                <Button variant="destructive" onClick={() => deleteTodo({ id: todo.id! })}>Delete</Button>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
+            
+            <DashboardStats stats={mockStats} />
+            <ProductsTable products={mockProducts} />
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
