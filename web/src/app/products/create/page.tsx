@@ -1,18 +1,10 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { CreateProductForm } from "@/components/dashboard/create-product-form"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import { ArrowLeft} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function CreateProduct() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
         <main className="flex-1 p-8 pt-6">
           <div className="max-w-2xl">
              <div className="flex items-center my-4 gap-4">
@@ -31,7 +23,5 @@ export default function CreateProduct() {
             <CreateProductForm />
           </div>
         </main>
-      </SidebarInset>
-    </SidebarProvider>
   )
 }
