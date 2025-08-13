@@ -1,52 +1,40 @@
-from typing import List, Optional
-from models import TodoItem
-import threading
+from typing import Dict, List, Optional
+from models import Product, ProductCreate, ProductUpdate
 
 
-class InMemoryDatabase:
+class InMemoryDB:
     def __init__(self):
-        self._todos: List[TodoItem] = []
-        self._next_id = 1
-        self._lock = threading.Lock()
-    
-    def get_all_todos(self) -> List[TodoItem]:
-        with self._lock:
-            return self._todos.copy()
-    
-    def create_todo(self, title: str) -> int:
-        with self._lock:
-            todo = TodoItem(
-                id=self._next_id,
-                title=title,
-                isComplete=False
-            )
-            self._todos.append(todo)
-            self._next_id += 1
-            return todo.id
-    
-    def update_todo(self, id: int, title: str, is_complete: bool) -> bool:
-        with self._lock:
-            for todo in self._todos:
-                if todo.id == id:
-                    todo.title = title
-                    todo.isComplete = is_complete
-                    return True
-            return False
-    
-    def delete_todo(self, id: int) -> bool:
-        with self._lock:
-            for i, todo in enumerate(self._todos):
-                if todo.id == id:
-                    del self._todos[i]
-                    return True
-            return False
-    
-    def get_todo_by_id(self, id: int) -> Optional[TodoItem]:
-        with self._lock:
-            for todo in self._todos:
-                if todo.id == id:
-                    return todo
-            return None
+        self._items: Dict[int, Product] = {}
+        self._next = 1
 
+    def _sku_unique(self, sku: str, ignore_id: Optional[int] = None):
+        for p in self._items.values():
+            if p.sku.lower() == sku.lower() and p.id != ignore_id:
+                raise ValueError("SKU must be unique")
 
-db = InMemoryDatabase()
+    def list(self) -> List[Product]:
+        return list(self._items.values())
+
+    def get(self, pid: int) -> Optional[Product]:
+        return self._items.get(pid)
+
+    def create(self, data: ProductCreate) -> int:
+        self._sku_unique(data.sku)
+        pid = self._next; self._next += 1
+        self._items[pid] = Product(id=pid, **data.model_dump())
+        return pid
+
+    def update(self, pid: int, data: ProductUpdate) -> Product:
+        cur = self._items.get(pid)
+        if not cur: raise KeyError
+        patch = data.model_dump(exclude_unset=True)
+        if "sku" in patch: self._sku_unique(patch["sku"], ignore_id=pid)
+        new = cur.model_dump(); new.update(patch)
+        self._items[pid] = Product(**new)
+        return self._items[pid]
+
+    def delete(self, pid: int) -> None:
+        if pid not in self._items: raise KeyError
+        del self._items[pid]
+
+db = InMemoryDB()
