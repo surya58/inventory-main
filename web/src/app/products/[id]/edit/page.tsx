@@ -1,9 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { EditProductForm } from "@/components/dashboard/edit-product-form"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import { notFound } from "next/navigation"
 import { ArrowLeft} from "lucide-react"
 import Link from "next/link"
@@ -50,9 +45,6 @@ export default function EditProduct({ params }: ProductDetailPageProps) {
         }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
         <main className="flex-1 p-8 pt-6">
           <div className="max-w-2xl">
             <div className="flex items-center my-4 gap-4">
@@ -71,7 +63,5 @@ export default function EditProduct({ params }: ProductDetailPageProps) {
             <EditProductForm productId={product} />
           </div>
         </main>
-      </SidebarInset>
-    </SidebarProvider>
   )
 }
