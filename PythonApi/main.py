@@ -1,54 +1,38 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, RedirectResponse
 from typing import List
-from models import TodoItem, CreateTodoCommand, UpdateTodoCommand
+from models import Product, ProductCreate, ProductUpdate
 from database import db
 
-app = FastAPI(title="Todos API", version="v1", docs_url="/swagger", redoc_url="/redoc")
-app.title = "Todos API"
-app.version = "v1"
-app.description = "Todos API"
+app = FastAPI(title="Product Inventory API", version="v1")
 
-# Configure CORS to allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
-# Send interactive user to swagger page by default
-@app.get("/")
-async def redirect_to_swagger():
-    return RedirectResponse(url="/swagger")
+@app.get("/api/products", response_model=List[Product])
+def list_products(): return db.list()
 
-@app.get("/api/Todos", response_model=List[TodoItem], tags=["Todos"], operation_id="GetTodos")
-async def get_todos():
-    return db.get_all_todos()
+@app.get("/api/products/{id}", response_model=Product)
+def get_product(id: int):
+    p = db.get(id)
+    if not p: raise HTTPException(404, "Product not found")
+    return p
 
+@app.post("/api/products", response_model=int)
+def create_product(payload: ProductCreate):
+    try: return db.create(payload)
+    except ValueError as e: raise HTTPException(400, str(e))
 
-@app.post("/api/Todos", response_model=int, tags=["Todos"], operation_id="CreateTodo")
-async def create_todo(command: CreateTodoCommand):
-    todo_id = db.create_todo(command.title)
-    return todo_id
+@app.put("/api/products/{id}", response_model=Product)
+def update_product(id: int, payload: ProductUpdate):
+    try: return db.update(id, payload)
+    except KeyError: raise HTTPException(404, "Product not found")
+    except ValueError as e: raise HTTPException(400, str(e))
 
-
-@app.put("/api/Todos/{id}", tags=["Todos"], operation_id="UpdateTodo")
-async def update_todo(id: int, command: UpdateTodoCommand):
-    # Use the ID from the path, not from the command body
-    success = db.update_todo(id, command.title, command.isComplete)
-    if not success:
-        raise HTTPException(status_code=404, detail="Todo not found")
-    
-    return Response(status_code=200)
-
-
-@app.delete("/api/Todos/{id}", tags=["Todos"], operation_id="DeleteTodo")
-async def delete_todo(id: int):
-    success = db.delete_todo(id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Todo not found")
-    
-    return Response(status_code=200)
+@app.delete("/api/products/{id}")
+def delete_product(id: int):
+    try: db.delete(id); return {"ok": True}
+    except KeyError: raise HTTPException(404, "Product not found")
