@@ -22,18 +22,6 @@ export function ProductsTable({ products }: ProductsTableProps) {
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const getStatusVariant = (status: Product['status']) => {
-    switch (status) {
-      case 'In Stock':
-        return 'default'
-      case 'Low Stock':
-        return 'secondary'
-      case 'Out of Stock':
-        return 'destructive'
-      default:
-        return 'outline'
-    }
-  }
 
   const getStatusColor = (status: Product['status']) => {
     switch (status) {
@@ -130,9 +118,11 @@ export function ProductsTable({ products }: ProductsTableProps) {
                         <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="sm">
+                    <Link href={`/products/${product.id}/edit?from=/`}>
+                      <Button variant="ghost" size="sm">
                       <Edit className="w-4 h-4" />
-                    </Button>
+                      </Button>
+                    </Link>
                     <Button variant="ghost" size="sm">
                       <Trash2 className="w-4 h-4" />
                     </Button>

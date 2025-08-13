@@ -40,10 +40,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </Button>
           </Link>
         </div>
+        <Link href={`/products/${product.id}/edit?from=/products/${product.id}`}>
         <Button>
           <Edit className="w-4 h-4 mr-2" />
           Edit Product
         </Button>
+        </Link>
       </div>
 
       {/* Product Header */}
