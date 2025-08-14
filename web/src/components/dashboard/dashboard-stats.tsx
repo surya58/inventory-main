@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card"
+import { TestProducts } from './test-products'
 import { Package, Layers, AlertTriangle, DollarSign } from "lucide-react"
 import { DashboardStats as StatsType } from "@/types/product"
 
@@ -60,6 +61,7 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
           </Card>
         )
       })}
+      <TestProducts />
     </div>
   )
 }
