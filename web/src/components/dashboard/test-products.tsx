@@ -19,7 +19,7 @@ export function TestProducts() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">✅ RTK Query is Working bitches</h2>
+      <h2 className="text-xl font-bold mb-4">✅ RTK Query is Working</h2>
       <p className="mb-2">Found {products?.length || 0} products:</p>
       {products?.map((product) => (
         <div key={product.id} className="bg-gray-100 p-2 mb-2 rounded">
