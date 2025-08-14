@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card"
-import { TestProducts } from './test-products'
 import { Package, Layers, AlertTriangle, DollarSign } from "lucide-react"
 import { DashboardStats as StatsType } from "@/types/product"
 
@@ -11,28 +10,31 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
   const statCards = [
     {
       title: "Total Products",
-      value: stats.totalProducts,
+      value: stats.totalProducts.toLocaleString(),
       icon: Package,
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600"
     },
     {
       title: "Total Stock",
-      value: stats.totalStock,
+      value: stats.totalStock.toLocaleString(),
       icon: Layers,
       bgColor: "bg-green-50",
       iconColor: "text-green-600"
     },
     {
       title: "Low Stock Items",
-      value: stats.lowStockItems,
+      value: stats.lowStockItems.toLocaleString(),
       icon: AlertTriangle,
-      bgColor: "bg-yellow-50",
-      iconColor: "text-yellow-600"
+      bgColor: stats.lowStockItems > 0 ? "bg-yellow-50" : "bg-gray-50",
+      iconColor: stats.lowStockItems > 0 ? "text-yellow-600" : "text-gray-400"
     },
     {
       title: "Total Value",
-      value: `$${stats.totalValue.toLocaleString()}`,
+      value: `$${stats.totalValue.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })}`,
       icon: DollarSign,
       bgColor: "bg-purple-50",
       iconColor: "text-purple-600"
@@ -61,7 +63,6 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
           </Card>
         )
       })}
-      <TestProducts />
     </div>
   )
 }
