@@ -1,9 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { ProductDetail } from "@/components/dashboard/product-detail"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import { notFound } from "next/navigation"
 
 // Mock data - replace with actual data fetching
@@ -49,13 +44,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
         <main className="flex-1 p-8 pt-6">
           <ProductDetail product={product} />
         </main>
-      </SidebarInset>
-    </SidebarProvider>
   )
 }

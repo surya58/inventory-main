@@ -1,10 +1,8 @@
-import { AppSidebar } from "@/components/app-sidebar"
+"use client";
+
 import { DashboardStats } from "@/components/dashboard/dashboard-stats"
 import { ProductsTable } from "@/components/dashboard/products-table"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+
 
 // Mock data - replace with actual data fetching
 const mockStats = {
@@ -91,9 +89,6 @@ const mockProducts = [
 
 export default function Dashboard() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
         <main className="flex-1 space-y-4 p-8 pt-6">
           <div className="space-y-8">
             <div>
@@ -105,7 +100,5 @@ export default function Dashboard() {
             <ProductsTable products={mockProducts} />
           </div>
         </main>
-      </SidebarInset>
-    </SidebarProvider>
   )
 }
