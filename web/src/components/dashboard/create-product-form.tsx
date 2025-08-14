@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation"
 import { useCreateProductApiProductsPostMutation } from "@/store/api/enhanced/product"
 import { Loader2 } from "lucide-react"
 import { productSchema, type ProductFormData } from "@/lib/validation/product-schema"
-import { ZodIssue } from "zod/v4/classic/external.cjs"
 
 const categories = [
   "Electronics",
@@ -36,7 +35,7 @@ export function CreateProductForm() {
   })
   const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({})
 
-  // ✅ Simpler, beginner-friendly validation using safeParse
+
   const validateForm = (): boolean => {
     const result = productSchema.safeParse(formData)
 

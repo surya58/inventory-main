@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation"
 import { useUpdateProductApiProductsIdPutMutation, useGetProductApiProductsIdGetQuery } from "@/store/api/enhanced/product"
 import { Loader2 } from "lucide-react"
 import { productSchema, type ProductFormData } from "@/lib/validation/product-schema"
-import { ZodIssue } from "zod"
 
 const categories = [
   "Electronics",
@@ -46,7 +45,7 @@ export function EditProductForm({ productId }: EditProductFormProps) {
   })
   const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({})
 
-  // Populate form with existing product data
+
   useEffect(() => {
     if (product) {
       setFormData({
@@ -55,12 +54,12 @@ export function EditProductForm({ productId }: EditProductFormProps) {
         category: product.category || "",
         stock: product.stock || 0,
         price: product.price || 0,
-        description: "", // API doesn't have description field
+        description: "", //
       })
     }
   }, [product])
 
-  // ✅ Simplified safeParse-based validation
+  
   const validateForm = (): boolean => {
     const result = productSchema.safeParse(formData)
 
