@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useCreateProductApiProductsPostMutation } from "@/store/api/enhanced/product"
 import { Loader2 } from "lucide-react"
+import { productSchema, type ProductFormData } from "@/lib/validation/product-schema"
 
 const categories = [
   "Electronics",
@@ -21,15 +22,6 @@ const categories = [
   "Sports",
 ]
 
-interface ProductFormData {
-  name: string
-  sku: string
-  category: string
-  stock: string
-  price: string
-  description: string
-}
-
 export function CreateProductForm() {
   const router = useRouter()
   const [createProduct, { isLoading }] = useCreateProductApiProductsPostMutation()
@@ -37,23 +29,29 @@ export function CreateProductForm() {
     name: "",
     sku: "",
     category: "",
-    stock: "0",
-    price: "0.00",
+    stock: 0,
+    price: 0,
     description: "",
   })
-  const [errors, setErrors] = useState<Partial<ProductFormData>>({})
+  const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({})
+
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ProductFormData> = {}
-    
-    if (!formData.name.trim()) newErrors.name = "Product name is required"
-    if (!formData.sku.trim()) newErrors.sku = "SKU is required"
-    if (!formData.category) newErrors.category = "Category is required"
-    if (parseInt(formData.stock) < 0) newErrors.stock = "Stock cannot be negative"
-    if (parseFloat(formData.price) <= 0) newErrors.price = "Price must be greater than 0"
-    
+    const result = productSchema.safeParse(formData)
+
+    if (result.success) {
+      setErrors({})
+      return true
+    }
+
+    const newErrors: Partial<Record<keyof ProductFormData, string>> = {}
+    result.error.issues.forEach((err) => {
+    const field = err.path[0] as keyof ProductFormData
+    newErrors[field] = err.message
+    })
+
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return false
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,20 +64,17 @@ export function CreateProductForm() {
         name: formData.name.trim(),
         sku: formData.sku.trim().toUpperCase(),
         category: formData.category,
-        stock: parseInt(formData.stock),
-        price: parseFloat(formData.price)
+        stock: formData.stock,
+        price: formData.price
       }
 
       const result = await createProduct({ productCreate: productData }).unwrap()
       
       console.log("Product created with ID:", result)
-      
-      // Redirect to dashboard with success
       router.push("/")
     } catch (error: unknown) {
       console.error("Failed to create product:", error)
       
-      // Handle specific API errors
       interface ApiError {
         data?: {
           detail?: unknown
@@ -102,8 +97,7 @@ export function CreateProductForm() {
             alert(`Error: ${detail}`)
           }
         } else if (Array.isArray(detail)) {
-          // Handle validation errors
-          const validationErrors: Partial<ProductFormData> = {}
+          const validationErrors: Partial<Record<keyof ProductFormData, string>> = {}
           detail.forEach((err: { loc?: unknown[]; msg?: string }) => {
             if (err.loc && err.loc.length > 1) {
               const field = err.loc[1] as keyof ProductFormData
@@ -121,11 +115,12 @@ export function CreateProductForm() {
   const handleInputChange = (field: keyof ProductFormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    const value = e.target.value
     setFormData(prev => ({
       ...prev,
-      [field]: e.target.value
+      [field]: field === 'stock' || field === 'price' ? 
+        (value === '' ? 0 : parseFloat(value) || 0) : value
     }))
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }))
     }
@@ -141,7 +136,7 @@ export function CreateProductForm() {
     }
   }
 
-  const characterCount = formData.description.length
+  const characterCount = formData.description?.length || 0
   const maxCharacters = 500
 
   return (
@@ -167,10 +162,10 @@ export function CreateProductForm() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">
-              SKU *
+              SKU * (Format: 123-456-78)
             </label>
             <Input
-              placeholder="Enter SKU code"
+              placeholder="123-456-78"
               value={formData.sku}
               onChange={handleInputChange("sku")}
               className={errors.sku ? "border-red-500" : ""}
@@ -212,7 +207,7 @@ export function CreateProductForm() {
               placeholder="0.00"
               value={formData.price}
               onChange={handleInputChange("price")}
-              min="0.01"
+              min="0"
               step="0.01"
               className={errors.price ? "border-red-500" : ""}
               disabled={isLoading}
@@ -255,7 +250,7 @@ export function CreateProductForm() {
           </label>
           <Textarea
             placeholder="Enter product description (optional)"
-            value={formData.description}
+            value={formData.description || ""}
             onChange={handleInputChange("description")}
             maxLength={maxCharacters}
             className="min-h-[100px]"
